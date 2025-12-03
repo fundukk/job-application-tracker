@@ -16,6 +16,7 @@ git clone https://github.com/fundukk/job-application-tracker
 ---------------------------------------------------
 
 2. Install Python
+
 2.1 Make sure you have Python 3 installed. You can check this in your terminal:
 
 python3 --version
@@ -26,6 +27,7 @@ https://www.python.org/downloads/
 ---------------------------------------------------
 
 3. Install the Required Packages
+
 3.1 Open your terminal inside the project folder and run:
 
 pip install -r requirements.txt
@@ -36,6 +38,7 @@ This installs all the libraries the script needs (gspread, BeautifulSoup, reques
 
 4. Set Up Google Sheets Access
 To allow the script to write to your spreadsheet, you need a Google API key.
+
 4.1 Go to Google Cloud Console:
    https://console.cloud.google.com/
 
