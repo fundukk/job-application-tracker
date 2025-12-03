@@ -43,6 +43,7 @@ To allow the script to write to your spreadsheet, you need a Google API key.
    https://console.cloud.google.com/
 
 4.2 Create a new project
+
 4.3 Enable the Google Sheets API
 
 ---------------------------------------------------
@@ -51,10 +52,15 @@ To allow the script to write to your spreadsheet, you need a Google API key.
 On the left menu, go to:
 
 5.1 APIs & Services → Credentials
+
 5.2 Click Create Credentials → Service Account
+
 5.3 Give it any name (e.g., “job-tracker-bot”)
+
 5.4 Click Create and Continue
+
 5.5 You may skip roles (or choose Editor)
+
 5.6 Click Done
 
 ---------------------------------------------------
@@ -63,10 +69,15 @@ On the left menu, go to:
 This file allows the script to authenticate.
 
 6.1 In Credentials, find your new service account
+
 6.2 Click its name
+
 6.3 Go to the Keys tab
+
 6.4 Click Add Key → Create New Key
+
 6.5 Choose JSON
+
 6.6 A file like this will download:
 
 job-tracker-12893712398123.json
@@ -101,16 +112,20 @@ Your script uses a “robot account” (the service account) to edit your spread
 To give it permission, you must share your sheet with its email address.
 
 8.1 Open your Google Sheet
+
 8.2 Click the Share button (top-right)
+
 8.3 Find the email of your service account — it looks like:
 
 job-tracker-bot@yourproject.iam.gserviceaccount.com
--
+
 (You can find this email in Google Cloud Console → IAM → Service Accounts.)
--
+
 
 8.4 Paste that email into the Share window
+
 8.5 Give it Editor access
+
 8.6 Click Send
 
 Your script can now safely write into the sheet.
@@ -120,12 +135,15 @@ Your script can now safely write into the sheet.
 9. Run the Script
 Once everything is set up, you can start using your tracker.
 9.1 Open your terminal
+
 9.2 Make sure you’re inside the project folder
+
 9.3 Run:
 
 python3 job_tracker.py
 
 9.4 The script will ask you for a job posting URL
+
 Paste the link (e.g., from LinkedIn) and press Enter
 
 Each time you run the script and provide a URL, a new entry will be added automatically to your Google Sheet — including company name, role, salary, location, and more.
