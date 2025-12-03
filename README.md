@@ -1,4 +1,3 @@
-<img width="1512" height="982" alt="Screenshot 2025-12-03 at 17 44 28" src="https://github.com/user-attachments/assets/d185cd3c-adb1-4ad6-9399-f61b08b61d49" />📘 How to Use (Beginner-Friendly Guide)
 Follow these steps to set up the tracker on your own computer.
 
 Before You Start
