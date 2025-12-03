@@ -69,7 +69,7 @@ This file allows the script to authenticate.
 job-tracker-12893712398123.json
 
 This file is your credentials.json.
--
+
 ---------------------------------------------------
 
 7. Rename & Move the File
@@ -87,6 +87,8 @@ job-application-tracker/
 │── README.md
 
 Your script will now be able to connect to Google Sheets.
+
+⚠️ Important: Do NOT upload credentials.json to GitHub — it contains private keys.
 
 ---------------------------------------------------
 
