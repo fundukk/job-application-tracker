@@ -1,3 +1,27 @@
+📝 Job Application Tracker
+
+A Python tool that automatically logs job applications into a Google Sheet.
+It extracts details from LinkedIn job postings — company, role, salary, job type, and more — and saves them in a clean, structured spreadsheet.
+This project helps streamline high-volume job applications and keeps your search organized.
+
+---------------------------------------------------
+
+✨ Features
+
+- Scrapes job posting details from LinkedIn
+
+- Automatically writes data into a Google Sheet
+
+- Supports job location, salary, job type, notes, and status
+
+- Prevents duplicate entries
+
+- Easy setup for beginners
+
+- Saves time during your job search
+
+---------------------------------------------------
+
 Follow these steps to set up the tracker on your own computer.
 
 Before You Start
