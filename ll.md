@@ -79,7 +79,7 @@ The script automatically converts:
 
 - monthly ↔ yearly + hourly
 
-## If you type words like negotiable, tbd, n/a, market, etc., they are saved as-is. If there’s no real salary info on the page, the script saves Undetermined and shades that cell gray in the sheet.
+** If you type words like negotiable, tbd, n/a, market, etc., they are saved as-is. If there’s no real salary info on the page, the script saves Undetermined and shades that cell gray in the sheet. **
 
 ### 4. Remote & Job Type
 
