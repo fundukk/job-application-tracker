@@ -41,7 +41,7 @@ or clone it using:
 git clone https://github.com/fundukk/job-application-tracker
 
 
-2. Install Python
+### 2. Install Python
 Make sure you have Python 3 installed. You can check this in your terminal:
 
 
@@ -51,7 +51,7 @@ If you don’t have Python, download it from:
 https://www.python.org/downloads/
 
 
-3. Install the Required Packages
+### 3. Install the Required Packages
 Open your terminal inside the project folder and run:
 
 
@@ -67,7 +67,7 @@ Copy code
 pip install gspread google-auth requests beautifulsoup4
 
 
-4. Set Up Google Sheets Access
+### 4. Set Up Google Sheets Access
 To allow the script to write to your spreadsheet, you need a Google API key.
 
 Go to Google Cloud Console: https://console.cloud.google.com/
@@ -77,7 +77,7 @@ Create a new project
 Enable the Google Sheets API for that project
 
 
-5. Create a Service Account
+### 5. Create a Service Account
 In Google Cloud Console, on the left menu:
 
 Go to APIs & Services → Credentials
@@ -93,7 +93,7 @@ You may skip roles (or choose Editor)
 Click Done
 
 
-6. Generate a JSON Key and Download It
+### 6. Generate a JSON Key and Download It
 This file allows the script to authenticate.
 
 In Credentials, find your new service account
@@ -114,7 +114,7 @@ job-tracker-12893712398123.json
 This file is your credentials.json.
 
 
-7. Rename & Move the File
+### 7. Rename & Move the File
 Rename the downloaded file to:
 
 text
@@ -133,7 +133,7 @@ Your script will now be able to connect to Google Sheets.
 
 ⚠️ Important: Do NOT upload credentials.json to GitHub — it contains private keys.
 
-8. Share Your Google Sheet With the Service Account
+### 8. Share Your Google Sheet With the Service Account
 Your script uses a “robot account” (the service account) to edit your spreadsheet.
 To give it permission, you must share your sheet with its email address.
 
@@ -157,7 +157,7 @@ Click Send
 Your script can now safely write into the sheet.
 
 
-9. Run the Script
+### 9. Run the Script
 Once everything is set up, you can start using your tracker.
 
 Open your terminal
@@ -174,7 +174,7 @@ Paste the link (e.g., from LinkedIn) and press Enter
 
 Each time you run the script and provide a URL, a new entry will be added automatically to your Google Sheet — including company name, role, salary, location, and more.
 
-🔑 Finding Your Spreadsheet ID
+### 🔑 Finding Your Spreadsheet ID
 Your Google Sheet URL looks like this:
 
 text
@@ -182,13 +182,13 @@ Copy code
 https://docs.google.com/spreadsheets/d/SPREADSHEET_ID/edit#gid=0
 Copy the part labeled SPREADSHEET_ID and paste it into the script where indicated.
 
-📊 Example Output
+### 📊 Example Output
 Here is how the tracker looks after running the script:
 
 <img width="1160" height="355" alt="Screenshot 2025-12-03 at 17 47 18" src="https://github.com/user-attachments/assets/b85bda9d-6ac8-4538-a86d-ba907144267f" />
 
 
-🛠️ Troubleshooting
+### 🛠️ Troubleshooting
 ❌ ERROR: “The caller does not have permission”
 → You forgot to share the Google Sheet with your service account email. Repeat Step 8.
 
@@ -207,7 +207,7 @@ Wrong Sheet permissions
 Wrong file name for credentials (credentials.json must match exactly)
 
 
-🚀 Future Improvements
+### 🚀 Future Improvements
 Add support for Indeed or Glassdoor URLs
 
 Improve salary scraping
