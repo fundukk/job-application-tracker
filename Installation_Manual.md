@@ -50,6 +50,13 @@ pip install -r requirements.txt
 
 pip install gspread google-auth google-auth-oauthlib google-auth-httplib2 requests beautifulsoup4
 
+- gspread — to write into Google Sheets  
+- google-auth — authentication  
+- google-auth-oauthlib — OAuth + service account helpers  
+- google-auth-httplib2 — HTTP transport for Google APIs  
+- requests — download job pages  
+- beautifulsoup4 — HTML parsing
+
 
 ### 4. Set Up Google Sheets Access
 To allow the script to write to your spreadsheet, you need a Google API key.
