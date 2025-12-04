@@ -40,7 +40,7 @@ From the command line:
 
 After choosing a specific job description, click on the job's name to open the position page.
 
-<img width="1512" height="982" alt="Screenshot 2025-12-04 at 17 36 28" src="https://github.com/user-attachments/assets/44f93b30-8031-4494-b054-2afecf9abe79" />
+<img width="1263" height="581" alt="Screenshot 2025-12-04 at 17 50 31" src="https://github.com/user-attachments/assets/8b933f38-54ce-47dc-984f-69c95f5f3bf8" />
 
 Then copy the URL and paste it into your Termninal in the Visual Studio Code App. 
 
