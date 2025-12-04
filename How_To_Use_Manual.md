@@ -42,11 +42,11 @@ After choosing a specific job description, click on the job's name to open the p
 
 <img width="1263" height="581" alt="Screenshot 2025-12-04 at 17 50 31" src="https://github.com/user-attachments/assets/8b933f38-54ce-47dc-984f-69c95f5f3bf8" />
 
-Then copy the URL and paste it into your Termninal in the Visual Studio Code App. 
+#### Then copy the URL and paste it into your Termninal in the Visual Studio Code App. 
 
 <img width="1257" height="558" alt="Screenshot 2025-12-04 at 17 51 18" src="https://github.com/user-attachments/assets/e4f19c85-7e46-4d11-a25a-d7a74cff0658" />
 
-<b> Here is a small shortcut that I prefer to use. There is no need to open an extra tab in case you copy the Link Adress straight away! </b>
+### Here is a small shortcut that I prefer to use. There is no need to open an extra tab in case you copy the Link Adress straight away! 
 
 <img width="1260" height="519" alt="Screenshot 2025-12-04 at 17 51 57" src="https://github.com/user-attachments/assets/0e0d179f-fe3d-46d8-a23c-bb708a97dfd4" />
 
