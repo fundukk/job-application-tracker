@@ -56,11 +56,11 @@ Open your terminal inside the project folder and run:
 pip install -r requirements.txt
 
 -- This installs all the libraries listed in requirements.txt that the script needs
-(for example: gspread, google-auth, requests, beautifulsoup4, etc.).
+(for example: gspread, google-auth, google-auth-oauthlib, google-auth-httplib2, requests, beautifulsoup4, etc.).
 
 #### !!If this fails for some reason, you can install them manually!!:
 
-pip install gspread google-auth requests beautifulsoup4
+pip install gspread google-auth google-auth-oauthlib google-auth-httplib2 requests beautifulsoup4
 
 
 ### 4. Set Up Google Sheets Access
