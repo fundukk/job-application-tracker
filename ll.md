@@ -10,21 +10,21 @@ This starts an interactive command shell, where you can type commands like addjo
 
 In the interactive shell (python3 job_tracker.py):
 
-- addjob, add, a -> Add a new job application.
+- addjob, add, a → Add a new job application.
 
-- replace, r, redo -> Move the most recent entry to a Trash sheet and then add a new job (with special “replace by link” behavior, see below).
+- replace, r, redo → Move the most recent entry to a Trash sheet and then add a new job (with special “replace by link” behavior, see below).
 
-- help, h, ? -> Show the list of commands.
+- help, h, ? → Show the list of commands.
 
-- exit, quit, q -> Leave the program.
+- exit, quit, q → Leave the program.
 
 From the command line:
 
-- python3 job_tracker.py addjob -> Immediately starts the “add job” flow in a loop (after each job, it asks if you want to add another).
+- python3 job_tracker.py addjob → Immediately starts the “add job” flow in a loop (after each job, it asks if you want to add another).
 
-- python3 job_tracker.py replace -> Moves the most recent entry to Trash and then starts the “add job (replace mode)” flow.
+- python3 job_tracker.py replace → Moves the most recent entry to Trash and then starts the “add job (replace mode)” flow.
 
-- python3 job_tracker.py loop / run / interactive -> Same as running addjob in a loop.
+- python3 job_tracker.py loop / run / interactive → Same as running addjob in a loop.
 
 ## ➕ Adding a Job (addjob)
 
@@ -79,9 +79,7 @@ The script automatically converts:
 
 - monthly ↔ yearly + hourly
 
-## If you type words like negotiable, tbd, n/a, market, etc., they are saved as-is.
-
-## If there’s no real salary info on the page, the script saves Undetermined and shades that cell gray in the sheet.
+## If you type words like negotiable, tbd, n/a, market, etc., they are saved as-is. If there’s no real salary info on the page, the script saves Undetermined and shades that cell gray in the sheet.
 
 ### 4. Remote & Job Type
 
@@ -113,4 +111,74 @@ Before saving, the script checks if the same Link already exists in the sheet.
 
 - If it finds a match, it prints a warning (эта ссылка уже сохранена) and does not save a duplicate row.
 
-  ##
+  ## 🔁 Replace Mode (replace / addjob with use_replace_mode=True)
+
+There are two related features:
+
+- Command: replace (shell or CLI) This is meant for “oops, I mis-logged the last job” situations.
+
+It moves the most recent entry (the first data row under the header) to a separate Trash sheet.
+
+Then it starts the normal “add job” wizard, but in replace mode.
+
+## What “replace mode” does differently? | When use_replace_mode=True (i.e., when triggered via replace)
+
+If the new job’s link already exists somewhere in the sheet:
+
+- The old row with that link is moved to Trash (or deleted if Trash move fails).
+
+- The new row is inserted back at the same row index.
+
+If the link is completely new:
+
+- It’s inserted as a new row at position 2 (just like normal addjob).
+
+** In both cases, it again applies salary coloring: ** 
+
+- Gray background for Undetermined or manual keywords
+
+- White for numeric salaries
+
+** So: **
+
+- addjob → never overwrites, just adds new rows (and skips exact duplicate links).
+
+- replace → explicitly lets you undo the last entry and/or replace an existing link.
+
+# 🗑️ Trash Sheet
+
+When you delete or replace entries, they’re not just lost.
+
+- The script keeps a separate sheet named Trash in the same Google Spreadsheet.
+
+- Every time a row is “deleted” or replaced, its old contents are copied into Trash (newest at the top).
+
+** This is useful if you accidentally removed the wrong job and want to restore it manually. **
+
+### 📥 What Gets Saved in the Sheet
+
+- Each row contains:
+
+- DateApplied — today’s date
+
+- Company
+
+- Location
+
+- Position
+
+- Link
+
+- Salary (with conversions where possible)
+
+- JobType
+
+- Remote (On-site / Hybrid / Remote)
+
+- Status — always "Applied" by default
+
+- Source — inferred from the link (LinkedIn / Indeed / Glassdoor / Company / Other)
+
+- Notes — whatever you typed
+
+** This makes it easy to filter, sort, and analyze your job search directly in Google Sheets. **
