@@ -30,7 +30,7 @@ You will need:
 - A Google Sheet where your applications will be stored  
 - Python 3 installed on your computer  
 
----
+
 
 ### 1. Download the Project
 
