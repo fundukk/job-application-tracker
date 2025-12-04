@@ -197,23 +197,18 @@ Here is how the tracker looks after running the script:
 
 Copy code
 pip install -r requirements.txt
+
 ❌ Script runs but no data appears in the sheet
 → Check:
-
-Wrong Spreadsheet ID
-
-Wrong Sheet permissions
-
-Wrong file name for credentials (credentials.json must match exactly)
+- Wrong Spreadsheet ID
+- Wrong Sheet permissions
+- Wrong file name for credentials (credentials.json must match exactly)
 
 
 ### 🚀 Future Improvements
 Add support for Indeed or Glassdoor URLs
 
-Improve salary scraping
-
-Add duplicate detection
-
-Add a GUI for non-technical users
-
-Add error logging
+- Improve salary scraping
+- Add duplicate detection
+- Add a GUI for non-technical users
+- Add error logging
