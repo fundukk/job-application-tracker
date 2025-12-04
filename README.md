@@ -37,16 +37,14 @@ You will need:
 Click the green **“Code”** button on this page → **Download ZIP**,  
 or clone it using:
 
-
 git clone https://github.com/fundukk/job-application-tracker
 
 
 ### 2. Install Python
 Make sure you have Python 3 installed. You can check this in your terminal:
 
-
-Copy code
 python3 --version
+
 If you don’t have Python, download it from:
 https://www.python.org/downloads/
 
@@ -54,16 +52,13 @@ https://www.python.org/downloads/
 ### 3. Install the Required Packages
 Open your terminal inside the project folder and run:
 
-
-Copy code
 pip install -r requirements.txt
+
 This installs all the libraries listed in requirements.txt that the script needs
 (for example: gspread, google-auth, requests, beautifulsoup4, etc.).
 
 If this fails for some reason, you can install them manually:
 
-
-Copy code
 pip install gspread google-auth requests beautifulsoup4
 
 
@@ -108,22 +103,17 @@ Choose JSON
 
 A file like this will download:
 
-text
-Copy code
 job-tracker-12893712398123.json
+
 This file is your credentials.json.
 
 
 ### 7. Rename & Move the File
 Rename the downloaded file to:
 
-text
-Copy code
 credentials.json
 Move it into the same folder as your Python script, for example:
 
-text
-Copy code
 job-application-tracker/
 │── job_tracker.py
 │── credentials.json   ← place it here
@@ -134,6 +124,7 @@ Your script will now be able to connect to Google Sheets.
 ⚠️ Important: Do NOT upload credentials.json to GitHub — it contains private keys.
 
 ### 8. Share Your Google Sheet With the Service Account
+
 Your script uses a “robot account” (the service account) to edit your spreadsheet.
 To give it permission, you must share your sheet with its email address.
 
@@ -143,8 +134,6 @@ Click the Share button (top-right)
 
 Find the email of your service account — it looks like:
 
-text
-Copy code
 job-tracker-bot@yourproject.iam.gserviceaccount.com
 (You can find this email in Google Cloud Console → IAM → Service Accounts.)
 
@@ -177,8 +166,6 @@ Each time you run the script and provide a URL, a new entry will be added automa
 ### 🔑 Finding Your Spreadsheet ID
 Your Google Sheet URL looks like this:
 
-text
-Copy code
 https://docs.google.com/spreadsheets/d/SPREADSHEET_ID/edit#gid=0
 Copy the part labeled SPREADSHEET_ID and paste it into the script where indicated.
 
