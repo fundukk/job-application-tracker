@@ -37,12 +37,12 @@ You will need:
 Click the green **“Code”** button on this page → **Download ZIP**,  
 or clone it using:
 
-```bash
+
 git clone https://github.com/fundukk/job-application-tracker
 2. Install Python
 Make sure you have Python 3 installed. You can check this in your terminal:
 
-bash
+
 Copy code
 python3 --version
 If you don’t have Python, download it from:
@@ -51,7 +51,7 @@ https://www.python.org/downloads/
 3. Install the Required Packages
 Open your terminal inside the project folder and run:
 
-bash
+
 Copy code
 pip install -r requirements.txt
 This installs all the libraries listed in requirements.txt that the script needs
@@ -59,7 +59,7 @@ This installs all the libraries listed in requirements.txt that the script needs
 
 If this fails for some reason, you can install them manually:
 
-bash
+
 Copy code
 pip install gspread google-auth requests beautifulsoup4
 4. Set Up Google Sheets Access
@@ -157,7 +157,7 @@ Make sure you’re inside the project folder
 
 Run:
 
-```bash
+
 Copy code
 python3 job_tracker.py
 The script will ask you for a job posting URL
@@ -184,7 +184,6 @@ Here is how the tracker looks after running the script:
 ❌ ModuleNotFoundError (gspread, bs4, etc.)
 → Install dependencies again:
 
-```bash
 Copy code
 pip install -r requirements.txt
 ❌ Script runs but no data appears in the sheet
