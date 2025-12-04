@@ -110,17 +110,22 @@ This file is your credentials.json.
 
 
 ### 7. Rename & Move the File
-Rename the downloaded file to:
+Rename the downloaded file to: credentials.json
 
-credentials.json
 Move it into the same folder as your Python script, for example:
 
 job-application-tracker/
 │── job_tracker.py
+
 │── credentials.json   ← place it here
+
 │── requirements.txt
+
 │── README.md
+
 Your script will now be able to connect to Google Sheets.
+
+<img width="248" height="107" alt="Screenshot 2025-12-03 at 19 22 22" src="https://github.com/user-attachments/assets/011ae1bb-4434-4147-94b2-a88739e032d0" />
 
 ⚠️ Important: Do NOT upload credentials.json to GitHub — it contains private keys.
 
