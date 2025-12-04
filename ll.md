@@ -56,7 +56,8 @@ If it’s a LinkedIn URL, the script scrapes:
 
 It then shows you what it found, e.g.:
 
-  <img width="808" height="162" alt="Screenshot 2025-12-03 at 20 00 13" src="https://github.com/user-attachments/assets/73b2ce05-6e35-4877-84c5-4fafb78ecb3f" />
+<img width="824" height="222" alt="Screenshot 2025-12-03 at 20 05 03" src="https://github.com/user-attachments/assets/d9e6e955-d495-4cb0-bc6d-4474bb816ad8" />
+
 
 ## 3. Walks you through each field with defaults
 
@@ -78,6 +79,38 @@ The script automatically converts:
 
 - monthly ↔ yearly + hourly
 
-## If you type words like negotiable, tbd, n/a, market, etc., they are saved as-is.
+### If you type words like negotiable, tbd, n/a, market, etc., they are saved as-is.
 
-## If there’s no real salary info on the page, the script saves Undetermined and shades that cell gray in the sheet.
+### If there’s no real salary info on the page, the script saves Undetermined and shades that cell gray in the sheet.
+
+## 4. Remote & Job Type
+
+The script guesses Remote/Hybrid/On-site from the page and your location, but you can change it.
+
+- Same for Job Type (Full-time, Part-time, Internship, etc.).
+
+  ## 5. Notes
+
+- Free text field.
+
+- Use it for reminders like EASY APPLY, Applied via company portal, etc.
+
+  ## 6. Confirmation step
+
+Before saving, it shows a full summary:
+
+<img width="822" height="522" alt="Screenshot 2025-12-03 at 20 07 19" src="https://github.com/user-attachments/assets/dd5ed9d4-2ad6-4944-8b6c-a3c9544a67b5" />
+
+- y / yes → saves the row
+
+- n / anything else → cancels
+
+- < / back → lets you go back and edit fields (mainly Notes / Job type / Remote)
+
+  ## 7. Duplicate protection
+
+Before saving, the script checks if the same Link already exists in the sheet.
+
+- If it finds a match, it prints a warning (эта ссылка уже сохранена) and does not save a duplicate row.
+
+  ###
