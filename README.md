@@ -45,7 +45,7 @@ Make sure you have Python 3 installed. You can check this in your terminal:
 
 python3 --version
 
-# If you don’t have Python, download it from:
+- If you don’t have Python, download it from:
 
 https://www.python.org/downloads/
 
@@ -55,7 +55,7 @@ Open your terminal inside the project folder and run:
 
 pip install -r requirements.txt
 
-This installs all the libraries listed in requirements.txt that the script needs
+-- This installs all the libraries listed in requirements.txt that the script needs
 (for example: gspread, google-auth, requests, beautifulsoup4, etc.).
 
 If this fails for some reason, you can install them manually:
