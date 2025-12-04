@@ -100,6 +100,8 @@ In Google Cloud Console, on the left menu:
 
 - Click Create Credentials → Service Account
 
+<img width="1512" height="982" alt="Screenshot 2025-12-04 at 17 36 28" src="https://github.com/user-attachments/assets/44f93b30-8031-4494-b054-2afecf9abe79" />
+
 - Give it any name (e.g., job-tracker-bot)
 
 - Click Create and Continue
@@ -107,6 +109,7 @@ In Google Cloud Console, on the left menu:
 - You may skip roles (or choose Editor)
 
 Click Done
+
 
 
 ### 6. Generate a JSON Key and Download It
@@ -122,6 +125,8 @@ This file allows the script to authenticate.
 
 - Choose JSON
 
+ <img width="1465" height="550" alt="Screenshot 2025-12-04 at 17 42 09" src="https://github.com/user-attachments/assets/c729e6d0-bbb4-4f61-be91-8f5cf95326d3" />
+
 - A file like this will download:
 
 job-tracker-12893712398123.json
@@ -131,6 +136,7 @@ job-tracker-12893712398123.json
 ---------------------- 
 
 ### 7. Rename & Move the File
+
 Rename the downloaded file to: credentials.json
 
 - Move it into the same folder as your Python script, for example:
@@ -227,3 +233,4 @@ Add support for Indeed or Glassdoor URLs
 - Add duplicate detection
 - Add a GUI for non-technical users
 - Add error logging
+- Make the code more universal
