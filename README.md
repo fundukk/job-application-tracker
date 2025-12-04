@@ -39,6 +39,8 @@ or clone it using:
 
 
 git clone https://github.com/fundukk/job-application-tracker
+
+
 2. Install Python
 Make sure you have Python 3 installed. You can check this in your terminal:
 
@@ -47,6 +49,7 @@ Copy code
 python3 --version
 If you don’t have Python, download it from:
 https://www.python.org/downloads/
+
 
 3. Install the Required Packages
 Open your terminal inside the project folder and run:
@@ -62,6 +65,8 @@ If this fails for some reason, you can install them manually:
 
 Copy code
 pip install gspread google-auth requests beautifulsoup4
+
+
 4. Set Up Google Sheets Access
 To allow the script to write to your spreadsheet, you need a Google API key.
 
@@ -70,6 +75,7 @@ Go to Google Cloud Console: https://console.cloud.google.com/
 Create a new project
 
 Enable the Google Sheets API for that project
+
 
 5. Create a Service Account
 In Google Cloud Console, on the left menu:
@@ -85,6 +91,7 @@ Click Create and Continue
 You may skip roles (or choose Editor)
 
 Click Done
+
 
 6. Generate a JSON Key and Download It
 This file allows the script to authenticate.
@@ -105,6 +112,7 @@ text
 Copy code
 job-tracker-12893712398123.json
 This file is your credentials.json.
+
 
 7. Rename & Move the File
 Rename the downloaded file to:
@@ -148,6 +156,7 @@ Click Send
 
 Your script can now safely write into the sheet.
 
+
 9. Run the Script
 Once everything is set up, you can start using your tracker.
 
@@ -177,6 +186,8 @@ Copy the part labeled SPREADSHEET_ID and paste it into the script where indicate
 Here is how the tracker looks after running the script:
 
 <img width="1160" height="355" alt="Screenshot 2025-12-03 at 17 47 18" src="https://github.com/user-attachments/assets/b85bda9d-6ac8-4538-a86d-ba907144267f" />
+
+
 🛠️ Troubleshooting
 ❌ ERROR: “The caller does not have permission”
 → You forgot to share the Google Sheet with your service account email. Repeat Step 8.
@@ -194,6 +205,7 @@ Wrong Spreadsheet ID
 Wrong Sheet permissions
 
 Wrong file name for credentials (credentials.json must match exactly)
+
 
 🚀 Future Improvements
 Add support for Indeed or Glassdoor URLs
