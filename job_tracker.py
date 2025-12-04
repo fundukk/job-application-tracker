@@ -17,14 +17,68 @@ BASE_DIR = Path(__file__).resolve().parent
 # credentials.json должен лежать рядом со скриптом
 SERVICE_ACCOUNT_FILE = BASE_DIR / "credentials.json"
 
-# Проверяем наличие файла при запуске
+# config.json для хранения SPREADSHEET_ID
+CONFIG_FILE = BASE_DIR / "config.json"
+
+def load_spreadsheet_id():
+    """Load SPREADSHEET_ID from config.json, or ask user if not found."""
+    import json
+    
+    def normalize_sheet_id(raw: str) -> str:
+        """Extract sheet ID from full URL or return as-is if already an ID."""
+        raw = (raw or "").strip()
+        # Если вставили целую ссылку — вырезаем ID между /d/ и /
+        if "docs.google.com" in raw and "/d/" in raw:
+            part = raw.split("/d/", 1)[1]
+            part = part.split("/", 1)[0]
+            return part.strip()
+        return raw
+    
+    if CONFIG_FILE.exists():
+        try:
+            with open(CONFIG_FILE, 'r') as f:
+                config = json.load(f)
+                raw_id = config.get("SPREADSHEET_ID", "")
+                sheet_id = normalize_sheet_id(raw_id)
+                if sheet_id:
+                    return sheet_id
+        except Exception:
+            pass
+    
+    # Если файла нет или не смогли прочитать - спрашиваем у пользователя
+    print("\n📋 Google Sheet ID не найден!")
+    print("🔗 Как получить:")
+    print("   1. Откройте вашу Google таблицу")
+    print("   2. Скопируйте ВЕСЬ URL или только ID между /d/ и /edit")
+    print("   3. Пример: https://docs.google.com/spreadsheets/d/1ABC2DEF3GHI/edit")
+    print("             ID это: 1ABC2DEF3GHI")
+    
+    spreadsheet_id = input("\n📝 Вставьте URL или ID: ").strip()
+    spreadsheet_id = normalize_sheet_id(spreadsheet_id)
+
+    if not spreadsheet_id:
+        print("❌ ID не может быть пустым!")
+        sys.exit(1)
+    
+    # Сохраняем в config.json
+    try:
+        config = {"SPREADSHEET_ID": spreadsheet_id}
+        with open(CONFIG_FILE, 'w') as f:
+            json.dump(config, f, indent=2)
+        print(f"✅ ID сохранен в {CONFIG_FILE}\n")
+    except Exception as e:
+        print(f"⚠️  Не удалось сохранить config: {e}")
+    
+    return spreadsheet_id
+
+# Проверяем наличие credentials при импорте
 if not SERVICE_ACCOUNT_FILE.exists():
     print(f"❌ Credentials file not found at {SERVICE_ACCOUNT_FILE}")
-    print("👉 Положите credentials.json в ту же папку, где лежит job_tracker.py, и запустите снова.")
+    print("👉 Положите credentials.json в ту же папку, где лежит job_tracker.py")
     sys.exit(1)
 
-# Google Sheet ID
-SPREADSHEET_ID = "1_OGsoxKbLK9aint02ABZ6UBjaJZFGZGNyIdl82TMFwg"
+# Загружаем SPREADSHEET_ID (спросит у пользователя если нет)
+SPREADSHEET_ID = load_spreadsheet_id()
 
 COLUMNS = [
     "DateApplied",
