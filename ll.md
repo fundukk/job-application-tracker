@@ -133,13 +133,13 @@ If the link is completely new:
 
 - It’s inserted as a new row at position 2 (just like normal addjob).
 
-** In both cases, it again applies salary coloring: ** 
+<b> In both cases, it again applies salary coloring: </b> 
 
 - Gray background for Undetermined or manual keywords
 
 - White for numeric salaries
 
-** So: **
+<b> So: </b> 
 
 - addjob → never overwrites, just adds new rows (and skips exact duplicate links).
 
@@ -153,7 +153,7 @@ When you delete or replace entries, they’re not just lost.
 
 - Every time a row is “deleted” or replaced, its old contents are copied into Trash (newest at the top).
 
-** This is useful if you accidentally removed the wrong job and want to restore it manually. **
+<b> This is useful if you accidentally removed the wrong job and want to restore it manually. </b>
 
 ### 📥 What Gets Saved in the Sheet
 
@@ -181,4 +181,4 @@ When you delete or replace entries, they’re not just lost.
 
 - Notes — whatever you typed
 
-** This makes it easy to filter, sort, and analyze your job search directly in Google Sheets. **
+<b> This makes it easy to filter, sort, and analyze your job search directly in Google Sheets. </b>
