@@ -82,9 +82,9 @@ In Google Cloud Console, on the left menu:
 
 - Give it any name (e.g., job-tracker-bot)
 
--Click Create and Continue
+- Click Create and Continue
 
--You may skip roles (or choose Editor)
+- You may skip roles (or choose Editor)
 
 Click Done
 
