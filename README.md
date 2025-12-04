@@ -11,7 +11,7 @@ This project helps you automate high-volume job searching and stay organized.
 
 ## Quick Start
 
-### 1️⃣ Install the project  
+### 1️⃣ Install the project (code and python)
 See full installation instructions here:  
 👉 [Installation Manual](./Installation_Manual.md)
 
@@ -45,7 +45,7 @@ The tracker saves each job like this:
 ## Requirements
 
 Python 3  
-`gspread`, `google-auth`, `requests`, `beautifulsoup4`  
+`gspread`, `google-auth`, `requests`, `beautifulsoup4`, `google-auth-oauthlib`, `google-auth-httplib2` 
 (automatically installed through `requirements.txt`)
 
 ---
