@@ -58,7 +58,7 @@ pip install -r requirements.txt
 -- This installs all the libraries listed in requirements.txt that the script needs
 (for example: gspread, google-auth, requests, beautifulsoup4, etc.).
 
-If this fails for some reason, you can install them manually:
+#### !!If this fails for some reason, you can install them manually!!:
 
 pip install gspread google-auth requests beautifulsoup4
 
