@@ -2,6 +2,7 @@
 import gspread
 from google.oauth2.service_account import Credentials
 from datetime import date
+from pathlib import Path
 
 import requests
 from bs4 import BeautifulSoup
@@ -10,7 +11,17 @@ import sys
 
 # ==== SETTINGS ====
 
-SERVICE_ACCOUNT_FILE = "/Users/funduk/Desktop/JOBs/credentials.json"
+# Путь к папке, где лежит этот скрипт
+BASE_DIR = Path(__file__).resolve().parent
+
+# credentials.json должен лежать рядом со скриптом
+SERVICE_ACCOUNT_FILE = BASE_DIR / "credentials.json"
+
+# Проверяем наличие файла при запуске
+if not SERVICE_ACCOUNT_FILE.exists():
+    print(f"❌ Credentials file not found at {SERVICE_ACCOUNT_FILE}")
+    print("👉 Положите credentials.json в ту же папку, где лежит job_tracker.py, и запустите снова.")
+    sys.exit(1)
 
 # Google Sheet ID
 SPREADSHEET_ID = "1_OGsoxKbLK9aint02ABZ6UBjaJZFGZGNyIdl82TMFwg"
@@ -1035,7 +1046,7 @@ def add_one_job(use_replace_mode: bool = False):
         # Salary (raw)
         if i == 3:
             res, used_default, is_back = prompt_with_default(
-                "Salary (например '$70k' или '$20–25/hr', можно пусто)",
+                "Salary (e.g. '$70k' or '$20–25/hr', can be empty)",
                 salary_raw or "",
             )
             if is_back:
