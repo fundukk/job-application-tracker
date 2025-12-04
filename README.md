@@ -157,7 +157,7 @@ Make sure you’re inside the project folder
 
 Run:
 
-bash
+```bash
 Copy code
 python3 job_tracker.py
 The script will ask you for a job posting URL
@@ -184,7 +184,7 @@ Here is how the tracker looks after running the script:
 ❌ ModuleNotFoundError (gspread, bs4, etc.)
 → Install dependencies again:
 
-bash
+```bash
 Copy code
 pip install -r requirements.txt
 ❌ Script runs but no data appears in the sheet
