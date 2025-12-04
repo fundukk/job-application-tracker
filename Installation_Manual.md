@@ -233,4 +233,4 @@ Add support for Indeed or Glassdoor URLs
 - Add duplicate detection
 - Add a GUI for non-technical users
 - Add error logging
-- Make the code more universal
+- Make the code more universal (improve the code for Windows users)
