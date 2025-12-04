@@ -22,11 +22,14 @@ You will need:
 
 ### 1. Download the Project
 
-Click the green **“Code”** button on this page → **Download ZIP**,  
+Click the green **“Code”** button on the main page → **Download ZIP**,  
 or clone it using:
 
 git clone https://github.com/fundukk/job-application-tracker
 
+<img width="781" height="163" alt="Screenshot 2025-12-04 at 17 25 58" src="https://github.com/user-attachments/assets/41eb1b79-f8d5-4de9-87b4-69ddd3b53e43" />
+
+You may delete all the manuals, and keep **job_tracker.py** and **requirements** only.x
 
 ### 2. Install Python
 Make sure you have Python 3 installed. You can check this in your terminal:
@@ -76,10 +79,19 @@ To allow the script to write to your spreadsheet, you need a Google API key.
 
 - Go to Google Cloud Console: https://console.cloud.google.com/
 
+<img width="1453" height="508" alt="Screenshot 2025-12-04 at 17 30 12" src="https://github.com/user-attachments/assets/384a0697-b90f-4340-9da8-0d3198652fc7" />
+
 - Create a new project
+
+<img width="1113" height="786" alt="Screenshot 2025-12-04 at 17 31 43" src="https://github.com/user-attachments/assets/ac58d4a6-eb57-4ec5-922c-e42b713f4c1d" />
+
 
 - Enable the Google Sheets API for that project
 
+<img width="1473" height="289" alt="Screenshot 2025-12-04 at 17 33 08" src="https://github.com/user-attachments/assets/aaba3e73-6392-4942-ab9a-da28538ffc4d" />
+
+
+<img width="605" height="303" alt="Screenshot 2025-12-04 at 17 32 51" src="https://github.com/user-attachments/assets/534d2a9b-babd-480f-b05b-4dfa83139bff" />
 
 ### 5. Create a Service Account
 In Google Cloud Console, on the left menu:
