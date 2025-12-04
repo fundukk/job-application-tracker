@@ -17,7 +17,7 @@ This project helps streamline high-volume job applications and keeps your search
 
 ---
 
-## 📘 How to Use (Beginner-Friendly Guide)
+## How to Use (Beginner-Friendly Guide)
 
 Follow these steps to set up the tracker on your own computer.
 
@@ -200,7 +200,7 @@ pip install -r requirements.txt
 - Wrong file name for credentials (credentials.json must match exactly)
 
 
-### 🚀 Future Improvements
+### Future Improvements
 Add support for Indeed or Glassdoor URLs
 
 - Improve salary scraping
