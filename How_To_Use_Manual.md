@@ -36,6 +36,22 @@ From the command line:
 
 - If you leave this empty, the script cancels.
 
+### It is essential to use the right link for the code. 
+
+After choosing a specific job description, click on the job's name to open the position page.
+
+<img width="1512" height="982" alt="Screenshot 2025-12-04 at 17 36 28" src="https://github.com/user-attachments/assets/44f93b30-8031-4494-b054-2afecf9abe79" />
+
+Then copy the URL and paste it into your Termninal in the Visual Studio Code App. 
+
+<img width="1257" height="558" alt="Screenshot 2025-12-04 at 17 51 18" src="https://github.com/user-attachments/assets/e4f19c85-7e46-4d11-a25a-d7a74cff0658" />
+
+** Here is a small shortcut that I prefer to use. There is no need to open an extra tab in case you copy the Link Adress straight away! **
+
+<img width="1260" height="519" alt="Screenshot 2025-12-04 at 17 51 57" src="https://github.com/user-attachments/assets/0e0d179f-fe3d-46d8-a23c-bb708a97dfd4" />
+
+
+
  ### 2. Tries to auto-fill fields
 
 If it’s a LinkedIn URL, the script scrapes:
