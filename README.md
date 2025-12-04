@@ -45,7 +45,8 @@ Make sure you have Python 3 installed. You can check this in your terminal:
 
 python3 --version
 
-If you don’t have Python, download it from:
+# If you don’t have Python, download it from:
+
 https://www.python.org/downloads/
 
 
