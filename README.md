@@ -92,17 +92,17 @@ Click Done
 ### 6. Generate a JSON Key and Download It
 This file allows the script to authenticate.
 
--In Credentials, find your new service account
+- In Credentials, find your new service account
 
--Click its name
+- Click its name
 
--Go to the Keys tab
+- Go to the Keys tab
 
--Click Add Key → Create New Key
+- Click Add Key → Create New Key
 
--Choose JSON
+- Choose JSON
 
--A file like this will download:
+- A file like this will download:
 
 job-tracker-12893712398123.json
 
@@ -113,7 +113,7 @@ job-tracker-12893712398123.json
 ### 7. Rename & Move the File
 Rename the downloaded file to: credentials.json
 
--Move it into the same folder as your Python script, for example:
+- Move it into the same folder as your Python script, for example:
 
 job-application-tracker/
 
@@ -136,18 +136,18 @@ job-application-tracker/
 Your script uses a “robot account” (the service account) to edit your spreadsheet.
 To give it permission, you must share your sheet with its email address.
 
--Open your Google Sheet
+- Open your Google Sheet
 
--Click the Share button (top-right)
+- Click the Share button (top-right)
 
--Find the email of your service account — it looks like:
+- Find the email of your service account — it looks like:
 
 job-tracker-bot@yourproject.iam.gserviceaccount.com
 (You can find this email in Google Cloud Console → IAM → Service Accounts.)
 
--Paste that email into the Share window
+- Paste that email into the Share window
 
--Give it Editor access
+- Give it Editor access
 
 Click Send
 
@@ -157,15 +157,15 @@ Click Send
 ### 9. Run the Script
 Once everything is set up, you can start using your tracker.
 
--Open your terminal
+- Open your terminal
 
--Make sure you’re inside the project folder
+- Make sure you’re inside the project folder
 
 Run:
 
 python3 job_tracker.py
 
--The script will ask you for a job posting URL
+- The script will ask you for a job posting URL
 Paste the link (e.g., from LinkedIn) and press Enter
 
 ## Each time you run the script and provide a URL, a new entry will be added automatically to your Google Sheet — including company name, role, salary, location, and more.
@@ -175,7 +175,7 @@ Your Google Sheet URL looks like this:
 
 https://docs.google.com/spreadsheets/d/SPREADSHEET_ID/edit#gid=0
 
--Copy the part labeled SPREADSHEET_ID and paste it into the script where indicated.
+- Copy the part labeled SPREADSHEET_ID and paste it into the script where indicated.
 
 ### 📊 Example Output
 Here is how the tracker looks after running the script:
