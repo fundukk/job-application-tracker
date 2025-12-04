@@ -57,6 +57,19 @@ pip install gspread google-auth google-auth-oauthlib google-auth-httplib2 reques
 - requests — download job pages  
 - beautifulsoup4 — HTML parsing
 
+## 🛠 If you get “pip: command not found”
+
+Some systems (especially macOS) do not have a standalone pip command.
+If `pip install ...` gives you an error, run this instead:
+
+- python3 -m pip install -r requirements.txt
+
+<b> This uses pip inside Python and works on all platforms. </b> 
+
+If pip is still missing, install it with:
+
+- python3 -m ensurepip --upgrade
+- python3 -m pip install --upgrade pip
 
 ### 4. Set Up Google Sheets Access
 To allow the script to write to your spreadsheet, you need a Google API key.
