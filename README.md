@@ -115,6 +115,7 @@ Rename the downloaded file to: credentials.json
 Move it into the same folder as your Python script, for example:
 
 job-application-tracker/
+
 │── job_tracker.py
 
 │── credentials.json   ← place it here
