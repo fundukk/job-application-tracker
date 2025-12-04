@@ -26,9 +26,9 @@ From the command line:
 
 - python3 job_tracker.py loop / run / interactive -> Same as running addjob in a loop.
 
-### ➕ Adding a Job (addjob)
+## ➕ Adding a Job (addjob)
 
-## 1. When you run addjob (via shell or directly), the script:
+### 1. When you run addjob (via shell or directly), the script:
 
 <img width="827" height="130" alt="Screenshot 2025-12-03 at 20 02 35" src="https://github.com/user-attachments/assets/28d8d5e0-3dde-4154-adae-b6f7c64772c7" />
 
@@ -36,7 +36,7 @@ From the command line:
 
 - If you leave this empty, the script cancels.
 
- ## 2. Tries to auto-fill fields
+ ### 2. Tries to auto-fill fields
 
 If it’s a LinkedIn URL, the script scrapes:
 
@@ -59,7 +59,7 @@ It then shows you what it found, e.g.:
 <img width="824" height="222" alt="Screenshot 2025-12-03 at 20 05 03" src="https://github.com/user-attachments/assets/d9e6e955-d495-4cb0-bc6d-4474bb816ad8" />
 
 
-## 3. Walks you through each field with defaults
+### 3. Walks you through each field with defaults
 
 For each field, it shows a prompt. If there is scraped data, it’s shown in brackets as a default. 
 
@@ -79,23 +79,23 @@ The script automatically converts:
 
 - monthly ↔ yearly + hourly
 
-### If you type words like negotiable, tbd, n/a, market, etc., they are saved as-is.
+## If you type words like negotiable, tbd, n/a, market, etc., they are saved as-is.
 
-### If there’s no real salary info on the page, the script saves Undetermined and shades that cell gray in the sheet.
+## If there’s no real salary info on the page, the script saves Undetermined and shades that cell gray in the sheet.
 
-## 4. Remote & Job Type
+### 4. Remote & Job Type
 
 The script guesses Remote/Hybrid/On-site from the page and your location, but you can change it.
 
 - Same for Job Type (Full-time, Part-time, Internship, etc.).
 
-  ## 5. Notes
+  ### 5. Notes
 
 - Free text field.
 
 - Use it for reminders like EASY APPLY, Applied via company portal, etc.
 
-  ## 6. Confirmation step
+  ### 6. Confirmation step
 
 Before saving, it shows a full summary:
 
@@ -107,10 +107,10 @@ Before saving, it shows a full summary:
 
 - < / back → lets you go back and edit fields (mainly Notes / Job type / Remote)
 
-  ## 7. Duplicate protection
+  ### 7. Duplicate protection
 
 Before saving, the script checks if the same Link already exists in the sheet.
 
 - If it finds a match, it prints a warning (эта ссылка уже сохранена) and does not save a duplicate row.
 
-  ###
+  ##
