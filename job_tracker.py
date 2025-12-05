@@ -706,8 +706,8 @@ def scrape_linkedin_job(url: str):
         elif "hybrid" in body:
             remote_hint = "Hybrid"
 
-        # Prioritize "Internship" if found
-        if "intern" in body:
+        # Check for job type keywords (more specific patterns first)
+        if any(word in body for word in ["internship", "intern position", "intern -"]):
             job_type = "Internship"
         else:
             for t in ["Full-time", "Part-time", "Contract", "Temporary"]:
