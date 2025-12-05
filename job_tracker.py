@@ -3,11 +3,11 @@ import gspread
 from google.oauth2.service_account import Credentials
 from datetime import date
 from pathlib import Path
-
 import requests
 from bs4 import BeautifulSoup
 import re
 import sys
+import json
 
 # ==== SETTINGS ====
 
@@ -22,16 +22,11 @@ CONFIG_FILE = BASE_DIR / "config.json"
 
 def load_spreadsheet_id():
     """Load SPREADSHEET_ID from config.json, or ask user if not found."""
-    import json
-    
     def normalize_sheet_id(raw: str) -> str:
         """Extract sheet ID from full URL or return as-is if already an ID."""
         raw = (raw or "").strip()
-        # Если вставили целую ссылку — вырезаем ID между /d/ и /
         if "docs.google.com" in raw and "/d/" in raw:
-            part = raw.split("/d/", 1)[1]
-            part = part.split("/", 1)[0]
-            return part.strip()
+            return raw.split("/d/", 1)[1].split("/", 1)[0].strip()
         return raw
     
     if CONFIG_FILE.exists():
@@ -96,17 +91,25 @@ COLUMNS = [
 
 # Manual salary values that should be preserved as-is when the user types them
 SALARY_MANUAL_KEYWORDS = {
-    "negotiable",
-    "tbd",
-    "tba",
-    "n/a",
-    "not specified",
-    "unspecified",
-    "market",
-    "dependent",
-    "undisclosed",
-    "competitive",
+    "negotiable", "tbd", "tba", "n/a", "not specified", 
+    "unspecified", "market", "dependent", "undisclosed", "competitive",
 }
+
+# Salary time markers for pattern matching
+HOURLY_MARKERS = ["/hr", "/hour", "per hour", "an hour", "hourly", " hr"]
+YEARLY_MARKERS = ["/yr", "/year", "per year", "a year", "yearly", " yr"]
+MONTHLY_MARKERS = ["/mo", "/month", "per month", "a month", "monthly", " mo"]
+
+# Combined regex pattern for all time markers
+TIME_MARKERS_PATTERN = r"(?:/yr|/year|per year|yr|/mo|/month|per month|month|mo|/hr|/hour|per hour|hr)\b"
+
+HOURS_PER_YEAR = 2080
+MONTHS_PER_YEAR = 12
+
+# User response constants
+YES_RESPONSES = ("y", "yes")
+NO_RESPONSES = ("n", "no", "q", "quit", "exit")
+BACK_RESPONSES = ("<", "back")
 
 # ==== GOOGLE SHEETS ====
 
@@ -199,7 +202,37 @@ def save_job(
         print(f"⚠ Эта ссылка уже сохранена (строка {existing_row}).\n")
         return
 
-    new_row = [
+    new_row = create_job_row(company, location, position, link, salary, job_type, remote, status, source, notes)
+
+    try:
+        ws.insert_row(new_row, 2, value_input_option="USER_ENTERED")
+        print("✔ Saved to Google Sheets!\n")
+        apply_salary_formatting(ws, 2, salary, manual_undetermined)
+    except Exception as e:
+        print(f"✖ Error saving to Google Sheets: {e}\n")
+
+
+# ==== HELPERS ====
+
+
+def display_job_summary(company, location, position, link, salary, job_type, remote, status, source, notes):
+    """Display job details in a formatted summary."""
+    print("\nWill save the following row:")
+    print(f"  Company:     {company}")
+    print(f"  Location:    {location}")
+    print(f"  Position:    {position}")
+    print(f"  Link:        {link}")
+    print(f"  Salary:      {salary}")
+    print(f"  JobType:     {job_type}")
+    print(f"  Remote:      {remote}")
+    print(f"  Status:      {status}")
+    print(f"  Source:      {source}")
+    print(f"  Notes:       {notes}")
+
+
+def create_job_row(company, location, position, link, salary, job_type, remote, status, source, notes):
+    """Create a row list for inserting into Google Sheets."""
+    return [
         date.today().isoformat(),
         company,
         location,
@@ -213,102 +246,48 @@ def save_job(
         notes,
     ]
 
+
+def apply_salary_formatting(ws, row_num: int, salary: str, manual_undetermined: bool):
+    """Apply gray/white background to salary cell based on its value."""
     try:
-        # вставляем сразу после шапки (новые вакансии сверху)
-        ws.insert_row(new_row, 2, value_input_option="USER_ENTERED")
-        print("✔ Saved to Google Sheets!\n")
-        # Apply formatting to the Salary cell: gray for explicit 'Undetermined',
-        # white when the saved salary contains digits (i.e. determined numeric).
+        salary_col = COLUMNS.index("Salary")
+    except ValueError:
+        salary_col = 5
+    
+    try:
+        sheet_id = int(ws._properties.get("sheetId", ws.id))
+    except Exception:
+        return  # Can't format without sheet ID
+    
+    sal_text = (salary or "").strip()
+    bg_color = None
+    
+    # Gray for undetermined
+    if sal_text.lower() == "undetermined" or sal_text.lower() in SALARY_MANUAL_KEYWORDS or manual_undetermined:
+        bg_color = {"red": 0.75, "green": 0.75, "blue": 0.75}
+    # White for numeric
+    elif re.search(r"\d", sal_text):
+        bg_color = {"red": 1.0, "green": 1.0, "blue": 1.0}
+    
+    if bg_color:
         try:
-            # find salary column index (0-based for API)
-            try:
-                salary_col = COLUMNS.index("Salary")  # 0-based index in our list
-            except ValueError:
-                salary_col = 5
-
-            # Row 2 (we inserted at row 2) -> zero-based startRowIndex = 1, endRowIndex = 2
-            start_row = 1
-            end_row = 2
-            start_col = salary_col
-            end_col = salary_col + 1
-
-            # sheet id: gspread stores it in worksheet._properties['sheetId']
-            sheet_id = None
-            try:
-                sheet_id = int(ws._properties.get("sheetId"))
-            except Exception:
-                try:
-                    sheet_id = int(ws.id)
-                except Exception:
-                    sheet_id = None
-
-            if sheet_id is not None:
-                sal_text = (salary or "").strip()
-                requests_body = None
-                if (
-                    sal_text.lower() == "undetermined"
-                    or sal_text.lower() in SALARY_MANUAL_KEYWORDS
-                    or manual_undetermined
-                ):
-                    requests_body = {
-                        "requests": [
-                            {
-                                "repeatCell": {
-                                    "range": {
-                                        "sheetId": sheet_id,
-                                        "startRowIndex": start_row,
-                                        "endRowIndex": end_row,
-                                        "startColumnIndex": start_col,
-                                        "endColumnIndex": end_col,
-                                    },
-                                    "cell": {
-                                        "userEnteredFormat": {
-                                            "backgroundColor": {"red": 0.75, "green": 0.75, "blue": 0.75}
-                                        }
-                                    },
-                                    "fields": "userEnteredFormat.backgroundColor",
-                                }
-                            }
-                        ]
+            ws.spreadsheet.batch_update({
+                "requests": [{
+                    "repeatCell": {
+                        "range": {
+                            "sheetId": sheet_id,
+                            "startRowIndex": row_num - 1,
+                            "endRowIndex": row_num,
+                            "startColumnIndex": salary_col,
+                            "endColumnIndex": salary_col + 1,
+                        },
+                        "cell": {"userEnteredFormat": {"backgroundColor": bg_color}},
+                        "fields": "userEnteredFormat.backgroundColor",
                     }
-                elif re.search(r"\d", sal_text):
-                    # determined numeric salary -> set white background
-                    requests_body = {
-                        "requests": [
-                            {
-                                "repeatCell": {
-                                    "range": {
-                                        "sheetId": sheet_id,
-                                        "startRowIndex": start_row,
-                                        "endRowIndex": end_row,
-                                        "startColumnIndex": start_col,
-                                        "endColumnIndex": end_col,
-                                    },
-                                    "cell": {
-                                        "userEnteredFormat": {
-                                            "backgroundColor": {"red": 1.0, "green": 1.0, "blue": 1.0}
-                                        }
-                                    },
-                                    "fields": "userEnteredFormat.backgroundColor",
-                                }
-                            }
-                        ]
-                    }
-
-                if requests_body is not None:
-                    try:
-                        ws.spreadsheet.batch_update(requests_body)
-                    except Exception:
-                        # non-fatal: formatting failed
-                        pass
+                }]
+            })
         except Exception:
-            # ignore formatting errors
-            pass
-    except Exception as e:
-        print(f"✖ Error saving to Google Sheets: {e}\n")
-
-
-# ==== HELPERS ====
+            pass  # Non-fatal formatting error
 
 
 def prompt_with_default(prompt: str, default: str, required: bool = False):
@@ -516,9 +495,9 @@ def enrich_salary_with_conversion(s: str) -> str:
 
     lower = s.lower()
     # detect explicit salary markers
-    is_hourly = any(x in lower for x in ["per hour", "an hour", "/hr", "hourly", " hr"])
-    is_yearly = any(x in lower for x in ["per year", "a year", "/yr", "yearly", " yr"])
-    is_monthly = any(x in lower for x in ["per month", "a month", "/mo", "monthly", " mo"])
+    is_hourly = any(x in lower for x in HOURLY_MARKERS)
+    is_yearly = any(x in lower for x in YEARLY_MARKERS)
+    is_monthly = any(x in lower for x in MONTHLY_MARKERS)
 
     # If there are no clear salary markers (no $/k/yr/hr/mo), consider it undetermined
     # This avoids saving long descriptive texts as salary (e.g., internship program descriptions)
@@ -568,13 +547,7 @@ def enrich_salary_with_conversion(s: str) -> str:
         return s
 
     def fmt_money(x, decimals=0):
-        if decimals == 0:
-            return f"${x:,.0f}"
-        else:
-            return f"${x:,.2f}"
-
-    HOURS_PER_YEAR = 2080
-    MONTHS_PER_YEAR = 12
+        return f"${x:,.0f}" if decimals == 0 else f"${x:,.2f}"
 
     # hourly → yearly
     if is_hourly:
@@ -708,7 +681,7 @@ def scrape_linkedin_job(url: str):
             # ---- Salary extraction (prefer regex on page text to avoid matching link hrefs) ----
             # 1) $-based patterns with time markers (per year/month/hour)
             salary_match = re.search(
-                r"\$\s*[\d,]+(?:\.\d+)?\s*(?:k|K)?(?:\s*[-–]\s*\$?\s*[\d,]+(?:\.\d+)?\s*(?:k|K)?)?\s*(?:/yr|per year|yr|/year|/yr|per month|/mo|month|mo|/hr|per hour|hr)\b",
+                rf"\$\s*[\d,]+(?:\.\d+)?\s*(?:k|K)?(?:\s*[-–]\s*\$?\s*[\d,]+(?:\.\d+)?\s*(?:k|K)?)?\s*{TIME_MARKERS_PATTERN}",
                 body,
                 re.IGNORECASE,
             )
@@ -718,7 +691,7 @@ def scrape_linkedin_job(url: str):
             else:
                 # 2) k-style without $ but with time marker: e.g. "70k per month" or "70-90k/mo"
                 k_match = re.search(
-                    r"[\d,]+(?:\s*[-–]\s*[\d,]+)?\s*[kK]\s*(?:/yr|per year|yr|/year|per month|/mo|month|mo|/hr|per hour|hr)\b",
+                    rf"[\d,]+(?:\s*[-–]\s*[\d,]+)?\s*[kK]\s*{TIME_MARKERS_PATTERN}",
                     body,
                     re.IGNORECASE,
                 )
@@ -875,20 +848,7 @@ def replace_job_by_link(
         return
 
     existing_row = link_already_exists(ws, link)
-    
-    new_row = [
-        date.today().isoformat(),
-        company,
-        location,
-        position,
-        link,
-        salary,
-        job_type,
-        remote,
-        status,
-        source,
-        notes,
-    ]
+    new_row = create_job_row(company, location, position, link, salary, job_type, remote, status, source, notes)
 
     try:
         if existing_row:
@@ -907,106 +867,14 @@ def replace_job_by_link(
                 except Exception:
                     pass
 
-            ws.insert_row(new_row, existing_row, value_input_option="USER_ENTERED")
-            print("✔ Saved to Google Sheets!\n")
+            row_num = existing_row
+            ws.insert_row(new_row, row_num, value_input_option="USER_ENTERED")
         else:
-            # Insert as new row at position 2
-            ws.insert_row(new_row, 2, value_input_option="USER_ENTERED")
-            print("✔ Saved to Google Sheets!\n")
+            row_num = 2
+            ws.insert_row(new_row, row_num, value_input_option="USER_ENTERED")
         
-        # Apply formatting to the Salary cell: gray for explicit 'Undetermined',
-        # white when the saved salary contains digits (i.e. determined numeric).
-        try:
-            # find salary column index (0-based for API)
-            try:
-                salary_col = COLUMNS.index("Salary")  # 0-based index in our list
-            except ValueError:
-                salary_col = 5
-
-            # Determine the row index for shading
-            if existing_row:
-                shade_row = existing_row
-            else:
-                shade_row = 2
-
-            # Convert to zero-based for API
-            start_row = shade_row - 1
-            end_row = shade_row
-            start_col = salary_col
-            end_col = salary_col + 1
-
-            # sheet id: gspread stores it in worksheet._properties['sheetId']
-            sheet_id = None
-            try:
-                sheet_id = int(ws._properties.get("sheetId"))
-            except Exception:
-                try:
-                    sheet_id = int(ws.id)
-                except Exception:
-                    sheet_id = None
-
-            if sheet_id is not None:
-                sal_text = (salary or "").strip()
-                requests_body = None
-                if (
-                    sal_text.lower() == "undetermined"
-                    or sal_text.lower() in SALARY_MANUAL_KEYWORDS
-                    or manual_undetermined
-                ):
-                    requests_body = {
-                        "requests": [
-                            {
-                                "repeatCell": {
-                                    "range": {
-                                        "sheetId": sheet_id,
-                                        "startRowIndex": start_row,
-                                        "endRowIndex": end_row,
-                                        "startColumnIndex": start_col,
-                                        "endColumnIndex": end_col,
-                                    },
-                                    "cell": {
-                                        "userEnteredFormat": {
-                                            "backgroundColor": {"red": 0.75, "green": 0.75, "blue": 0.75}
-                                        }
-                                    },
-                                    "fields": "userEnteredFormat.backgroundColor",
-                                }
-                            }
-                        ]
-                    }
-                elif re.search(r"\d", sal_text):
-                    # determined numeric salary -> set white background
-                    requests_body = {
-                        "requests": [
-                            {
-                                "repeatCell": {
-                                    "range": {
-                                        "sheetId": sheet_id,
-                                        "startRowIndex": start_row,
-                                        "endRowIndex": end_row,
-                                        "startColumnIndex": start_col,
-                                        "endColumnIndex": end_col,
-                                    },
-                                    "cell": {
-                                        "userEnteredFormat": {
-                                            "backgroundColor": {"red": 1.0, "green": 1.0, "blue": 1.0}
-                                        }
-                                    },
-                                    "fields": "userEnteredFormat.backgroundColor",
-                                }
-                            }
-                        ]
-                    }
-
-                if requests_body is not None:
-                    try:
-                        ws.spreadsheet.batch_update(requests_body)
-                    except Exception:
-                        # non-fatal: formatting failed
-                        pass
-        except Exception:
-            # ignore formatting errors
-            pass
+        print("✔ Saved to Google Sheets!\n")
+        apply_salary_formatting(ws, row_num, salary, manual_undetermined)
     except Exception as e:
         print(f"✖ Error saving to Google Sheets: {e}\n")
 
@@ -1168,21 +1036,11 @@ def add_one_job(use_replace_mode: bool = False):
         print(f"✖ Validation error: {error_msg}\n")
         return
 
-    print("\nWill save the following row:")
-    print(f"  Company:     {company}")
-    print(f"  Location:    {location}")
-    print(f"  Position:    {position}")
-    print(f"  Link:        {link}")
-    print(f"  Salary:      {salary}")
-    print(f"  JobType:     {job_type}")
-    print(f"  Remote:      {remote}")
-    print(f"  Status:      {status}")
-    print(f"  Source:      {source}")
-    print(f"  Notes:       {notes}")
+    display_job_summary(company, location, position, link, salary, job_type, remote, status, source, notes)
 
     while True:
         confirm = input("\nSave to Google Sheets? (y/n) (type '<' to go back): ").strip().lower()
-        if confirm in ("<", "back"):
+        if confirm in BACK_RESPONSES:
             # go back to notes step
             i = 6
             while i < 7:
@@ -1203,19 +1061,9 @@ def add_one_job(use_replace_mode: bool = False):
                     notes = res
                     break
             # reprint summary and re-ask
-            print("\nWill save the following row:")
-            print(f"  Company:     {company}")
-            print(f"  Location:    {location}")
-            print(f"  Position:    {position}")
-            print(f"  Link:        {link}")
-            print(f"  Salary:      {salary}")
-            print(f"  JobType:     {job_type}")
-            print(f"  Remote:      {remote}")
-            print(f"  Status:      {status}")
-            print(f"  Source:      {source}")
-            print(f"  Notes:       {notes}")
+            display_job_summary(company, location, position, link, salary, job_type, remote, status, source, notes)
             continue
-        if confirm not in ("y", "yes"):
+        if confirm not in YES_RESPONSES:
             print("✖ Not saved.\n")
             return
 
@@ -1259,26 +1107,22 @@ def main():
             while True:
                 add_one_job()
                 again = input("Add another? (y/n): ").strip().lower()
-                if again in ("n", "no", "q", "quit", "exit"):
+                if again in NO_RESPONSES:
                     print("Exiting. Bye 👋")
                     break
             return
         if cmd == "replace":
             # Replace mode: delete last row and add new one, allowing duplicate links
-            confirm = input("This will move the most recent entry to the 'Trash' sheet and then prompt for a replacement. Continue? (y/n): ").strip().lower()
-            if confirm in ("y", "yes"):
-                if delete_last_row():
-                    print("Now enter the new job entry:")
-                    add_one_job(use_replace_mode=True)
-            else:
-                print("Cancelled. No changes made.")
+            if delete_last_row():
+                print("Now enter the new job entry:")
+                add_one_job(use_replace_mode=True)
             return
         if cmd in ("loop", "run", "interactive"):
             # legacy behavior: keep adding until user quits
             while True:
                 add_one_job()
                 again = input("Add another? (y/n): ").strip().lower()
-                if again in ("n", "no", "q", "quit", "exit"):
+                if again in NO_RESPONSES:
                     print("Exiting. Bye 👋")
                     break
             return
@@ -1300,13 +1144,9 @@ def main():
             add_one_job()
             continue
         if cmd in ("replace", "r", "redo"):
-            confirm = input("This will move the most recent entry to the 'Trash' sheet and then prompt for a replacement. Continue? (y/n): ").strip().lower()
-            if confirm in ("y", "yes"):
-                if delete_last_row():
-                    print("Now enter the new job entry:")
-                    add_one_job(use_replace_mode=True)
-            else:
-                print("Cancelled. No changes made.")
+            if delete_last_row():
+                print("Now enter the new job entry:")
+                add_one_job(use_replace_mode=True)
             continue
         if cmd in ("exit", "quit", "q"):
             print("Exiting. Bye 👋")
