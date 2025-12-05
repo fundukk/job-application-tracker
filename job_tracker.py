@@ -361,6 +361,8 @@ def infer_source(link: str):
         return "Indeed"
     if "glassdoor" in link:
         return "Glassdoor"
+    if "joinhandshake.com" in link or "handshake.com" in link:
+        return "Handshake"
     return "Company / Other"
 
 
@@ -721,6 +723,308 @@ def scrape_linkedin_job(url: str):
     return position, company, location, salary, job_type, remote_hint
 
 
+# ==== HANDSHAKE SCRAPER ====
+
+
+def parse_handshake_text(text: str):
+    """Parse copied text from Handshake job page."""
+    position = ""
+    company = ""
+    location = ""
+    salary = ""
+    job_type = ""
+    remote_hint = ""
+    
+    lines = [line.strip() for line in text.split('\n') if line.strip()]
+    text_lower = text.lower()
+    
+    # Noise patterns to skip
+    noise_patterns = [
+        r'^\d+\s+profile\s+views?$',  # "13 profile views"
+        r'^skip to',
+        r'^menu$',
+        r'^navigation$',
+        r'^home$',
+        r'^jobs$',
+        r'^sign in$',
+        r'^log in$',
+        r'^search$',
+        r'^get the app$',
+        r'^save$',
+        r'^share$',
+        r'^apply$',
+        r'^follow$',
+        r'in the past \d+ days?$',  # "in the past 90 days"
+        r'^posted',
+        r'^apply by',
+        r'^={3,}$',  # Lines with just equal signs
+    ]
+    
+    def is_noise(line: str) -> bool:
+        """Check if a line is noise/navigation."""
+        if not line or len(line.strip()) == 0:
+            return True
+        line_lower = line.lower().strip()
+        # Skip single digits
+        if line_lower.isdigit():
+            return True
+        # Check against noise patterns
+        return any(re.match(pattern, line_lower, re.IGNORECASE) for pattern in noise_patterns)
+    
+    # Look for "Company logo" pattern to extract company name
+    logo_line_idx = -1
+    for i, line in enumerate(lines):
+        if "logo" in line.lower():
+            logo_line_idx = i
+            # Extract company name from "Company logo" pattern
+            logo_match = re.match(r'^(.+?)\s+logo\s*$', line, re.IGNORECASE)
+            if logo_match and not company:
+                potential_company = logo_match.group(1).strip()
+                if not is_noise(potential_company) and len(potential_company) > 2:
+                    company = potential_company
+            break
+    
+    # FALLBACK: If we found a logo line, position is usually
+    # the SECOND meaningful line after logo (1-я — индустрия).
+    if logo_line_idx >= 0 and not position:
+        start_idx = logo_line_idx + 1
+        seen_first_text = False  # первую нормальную строку пропускаем
+
+        for i in range(start_idx, min(start_idx + 8, len(lines))):
+            line = lines[i].strip()
+            lower = line.lower()
+
+            # стоп, если начались "Posted", даты, apply и т.п.
+            if re.match(r"^posted", lower) or re.search(r"\d+\s+days?\s+ago", lower) or "apply by" in lower:
+                break
+
+            # пропускаем дубликат компании
+            if company and lower == company.lower():
+                continue
+
+            # пропускаем шум и ВСЕ КАПС
+            if is_noise(line) or len(line) <= 3 or line.isupper():
+                continue
+
+            if not seen_first_text:
+                # первая нормальная строка после logo — обычно индустрия
+                seen_first_text = True
+                continue
+
+            # вторая нормальная строка после logo — job title
+            position = line
+            break
+    
+    # Alternative: Look for "Company is seeking [position]" pattern
+    if not position:
+        seeking_keywords = ["seeking", "looking for", "hiring"]
+        for line in lines[:10]:  # Check first 10 lines
+            if len(line) > 30 and any(kw in line.lower() for kw in seeking_keywords):
+                # Extract position from "seeking a/an [Position]"
+                match = re.search(r'(?:seeking|looking for|hiring)\s+(?:a|an)\s+(.+?)(?:\s+(?:for|to|with)|$)', line, re.IGNORECASE)
+                if match:
+                    position = match.group(1).strip()
+                    # Also extract company from "Company is seeking"
+                    if not company:
+                        comp_match = re.match(r'^(.+?)\s+(?:is|are)\s+(?:seeking|looking|hiring)', line, re.IGNORECASE)
+                        if comp_match:
+                            company = comp_match.group(1).strip()
+                    break
+    
+    # Try to find labeled fields as fallback
+    i = 0
+    while i < len(lines) and (not position or not company):  # Early exit if both found
+        line_lower = lines[i].lower()
+        
+        # Position field (only if not found via logo pattern)
+        if not position and line_lower == "position" and i + 1 < len(lines):
+            next_line = lines[i + 1].strip()
+            if not is_noise(next_line):
+                position = next_line
+                i += 2
+                continue
+        
+        # Company field (only if not found via logo pattern)
+        elif not company and line_lower == "company" and i + 1 < len(lines):
+            next_line = lines[i + 1].strip()
+            if not is_noise(next_line):
+                company = next_line
+                i += 2
+                continue
+        
+        # Location field
+        elif line_lower == "location" and i + 1 < len(lines):
+            location = lines[i + 1].strip()
+            i += 2
+            continue
+        
+        # Salary field
+        elif line_lower == "salary" and i + 1 < len(lines):
+            salary = lines[i + 1].strip()
+            i += 2
+            continue
+        
+        # JobType field
+        elif line_lower in ["jobtype", "job type", "employment type"] and i + 1 < len(lines):
+            job_type = lines[i + 1].strip()
+            i += 2
+            continue
+        
+        # Remote field
+        elif line_lower == "remote" and i + 1 < len(lines):
+            remote_hint = lines[i + 1].strip()
+            i += 2
+            continue
+        
+        i += 1
+    
+    # Fallback: if position or company still empty, find meaningful lines
+    if not position or not company:
+        label_words = {"position", "company", "location", "salary", "jobtype", "job type", "remote", "employment type"}
+        skip_keywords = {"profile", "view", "follow"}
+        meaningful_lines = []
+        
+        for line in lines:
+            # Collect meaningful lines (not noise, not labels, not metrics, not locations)
+            if (not is_noise(line) 
+                and line.lower() not in label_words 
+                and len(line) > 5
+                and not any(kw in line.lower() for kw in skip_keywords)
+                and not re.match(r'^[A-Z][a-z]+(?:\s+[A-Z][a-z]+)*,\s*[A-Z]{2}$', line)):
+                meaningful_lines.append(line)
+        
+        # Assign position as first meaningful line if not found
+        if not position and meaningful_lines:
+            position = meaningful_lines[0]
+        
+        # Assign company as second meaningful line if not found
+        if not company and len(meaningful_lines) > 1:
+            company = meaningful_lines[1]
+    
+    # Fallback: Location pattern matching
+    if not location:
+        loc_match = re.search(r'([A-Z][a-z]+(?:\s+[A-Z][a-z]+)*,\s*[A-Z]{2})', text)
+        if loc_match:
+            location = loc_match.group(1)
+    
+    # Salary (only if not already found from labeled field)
+    if not salary:
+        salary_match = re.search(
+            rf"\$\s*[\d,]+(?:\.\d+)?\s*(?:k|K)?(?:\s*[-–]\s*\$?\s*[\d,]+(?:\.\d+)?\s*(?:k|K)?)?\s*{TIME_MARKERS_PATTERN}",
+            text,
+            re.IGNORECASE,
+        )
+        if salary_match:
+            salary = salary_match.group(0).strip()
+    
+    # Remote/Hybrid (only if not already found from labeled field)
+    if not remote_hint:
+        if "remote" in text_lower:
+            remote_hint = "Remote"
+        elif "hybrid" in text_lower:
+            remote_hint = "Hybrid"
+    
+    # Job type (only if not already found from labeled field)
+    if not job_type:
+        if any(word in text_lower for word in ["internship", "intern position"]):
+            job_type = "Internship"
+        elif "full-time" in text_lower or "full time" in text_lower:
+            job_type = "Full-time"
+        elif "part-time" in text_lower or "part time" in text_lower:
+            job_type = "Part-time"
+        elif "contract" in text_lower:
+            job_type = "Contract"
+    
+    return position, company, location, salary, job_type, remote_hint
+
+
+def scrape_handshake_job(url: str):
+    """Parse Handshake job page for position / company / location / salary / job_type / remote_hint."""
+    position = ""
+    company = ""
+    location = ""
+    salary = ""
+    job_type = ""
+    remote_hint = ""
+
+    headers = {
+        "User-Agent": (
+            "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) "
+            "AppleWebKit/537.36 (KHTML, like Gecko) "
+            "Chrome/119.0 Safari/537.36"
+        ),
+        "Accept-Language": "en-US,en;q=0.9",
+    }
+
+    try:
+        resp = requests.get(url, headers=headers, timeout=15)
+        if resp.status_code != 200:
+            print(f"⚠ Cannot fetch page, HTTP {resp.status_code}")
+            return position, company, location, salary, job_type, remote_hint
+
+        soup = BeautifulSoup(resp.text, "html.parser")
+        
+        # Get title (usually in h1 or meta tag)
+        og_title = soup.find("meta", property="og:title")
+        if og_title and og_title.get("content"):
+            position = og_title.get("content").strip()
+        else:
+            h1 = soup.find("h1")
+            if h1:
+                position = h1.get_text(strip=True)
+        
+        # Try to find company name (often in specific divs or meta tags)
+        company_meta = soup.find("meta", property="og:site_name")
+        if company_meta and company_meta.get("content"):
+            company = company_meta.get("content").strip()
+        
+        # If not found, look for common patterns in text
+        body = soup.get_text(" ", strip=True)
+        
+        # Look for location patterns
+        if "location" in body.lower():
+            # Simple heuristic: find text after "location" keyword
+            parts = body.split("Location", 1)
+            if len(parts) > 1:
+                loc_text = parts[1][:100]  # Take first 100 chars
+                # Look for city, state pattern
+                import re
+                loc_match = re.search(r'([A-Z][a-z]+(?:\s+[A-Z][a-z]+)*,\s*[A-Z]{2})', loc_text)
+                if loc_match:
+                    location = loc_match.group(1)
+        
+        # Check for remote/hybrid
+        body_lower = body.lower()
+        if "remote" in body_lower:
+            remote_hint = "Remote"
+        elif "hybrid" in body_lower:
+            remote_hint = "Hybrid"
+        
+        # Check for job type
+        if any(word in body_lower for word in ["internship", "intern position"]):
+            job_type = "Internship"
+        elif "full-time" in body_lower or "full time" in body_lower:
+            job_type = "Full-time"
+        elif "part-time" in body_lower or "part time" in body_lower:
+            job_type = "Part-time"
+        elif "contract" in body_lower:
+            job_type = "Contract"
+        
+        # Look for salary with same pattern as LinkedIn
+        salary_match = re.search(
+            rf"\$\s*[\d,]+(?:\.\d+)?\s*(?:k|K)?(?:\s*[-–]\s*\$?\s*[\d,]+(?:\.\d+)?\s*(?:k|K)?)?\s*{TIME_MARKERS_PATTERN}",
+            body,
+            re.IGNORECASE,
+        )
+        if salary_match:
+            salary = salary_match.group(0).strip()
+
+    except Exception as e:
+        print(f"⚠ Error while scraping Handshake: {e}")
+
+    return position, company, location, salary, job_type, remote_hint
+
+
 # ==== GENERIC SCRAPER FOR NON-LINKEDIN ====
 
 
@@ -916,6 +1220,53 @@ def add_one_job(use_replace_mode: bool = False):
         print(f"  Salary:   {auto_salary}")
         print(f"  JobType:  {auto_job_type or '—'}")
         print(f"  Remote:   {auto_remote_hint or '—'}\n")
+    elif "handshake.com" in link.lower() or "joinhandshake.com" in link.lower():
+        print("\n📋 Handshake detected!")
+        print("Please copy the full job page text:")
+        print("  1. Open the job page in your browser")
+        print("  2. Select all text: Cmd+A (or Ctrl+A on Windows)")
+        print("  3. Copy: Cmd+C (or Ctrl+C on Windows)")
+        print("  4. Return here and paste: Cmd+V (or Ctrl+V on Windows)")
+        print("  5. Press Enter, then Cmd+D (or Ctrl+Z on Windows) to finish\n")
+        
+        # Read multiline input
+        print("Paste the text and press Cmd+D (Ctrl+Z on Windows) when done:")
+        try:
+            clipboard_lines = []
+            while True:
+                try:
+                    line = input()
+                    clipboard_lines.append(line)
+                except EOFError:
+                    break
+            
+            clipboard_text = '\n'.join(clipboard_lines)
+            
+            if clipboard_text.strip():
+                print("\n📝 Parsing text...")
+                (
+                    auto_position,
+                    auto_company,
+                    auto_location,
+                    auto_salary,
+                    auto_job_type,
+                    auto_remote_hint,
+                ) = parse_handshake_text(clipboard_text)
+                
+                if not auto_salary:
+                    auto_salary = "Undetermined"
+                
+                print("\nParsed from Handshake:")
+                print(f"  Position: {auto_position or '—'}")
+                print(f"  Company:  {auto_company or '—'}")
+                print(f"  Location: {auto_location or '—'}")
+                print(f"  Salary:   {auto_salary}")
+                print(f"  JobType:  {auto_job_type or '—'}")
+                print(f"  Remote:   {auto_remote_hint or '—'}\n")
+            else:
+                print("⚠ No text pasted, will enter manually.\n")
+        except KeyboardInterrupt:
+            print("\n⚠ Cancelled, will enter manually.\n")
     elif link.startswith("http"):
         print("Trying to guess from job page...")
         g_pos, g_comp, g_loc = scrape_generic_job(link)
